@@ -17,7 +17,7 @@ class VGG16(nn.Module):
                            "conv2-1", "relu2-1", "conv2-2", "relu2-2", "pool2",
                            "conv3-1", "relu3-1", "conv3-2", "relu3-2", "conv3-3", "relu3-3", "pool3",
                            "conv4-1", "relu4-1", "conv4-2", "relu4-2", "conv4-3", "relu4-3", "pool4",
-                           "conv5-1", "conv5-1", "conv5-2", "relu5-2", "conv5-3", "relu5-3", "pool5"]
+                           "conv5-1", "relu5-1", "conv5-2", "relu5-2", "conv5-3", "relu5-3", "pool5"]
 
         self.features.append(nn.Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)))
         self.features.append(nn.ReLU(inplace=True))
@@ -59,8 +59,13 @@ class VGG16(nn.Module):
         self.fc.append(nn.Linear(4096, 4096))
         self.fc.append(nn.Linear(4096, 1024))
         
-        
+        for i in range(len(self.features)):
+            self.add_module(self.func_names[i], self.features[i])
 
+        self.add_module('fc1', self.fc[0])
+        self.add_module('fc2', self.fc[1])
+        self.add_module('fc3', self.fc[2])
+       
         if not requires_grad:
             for param in self.parameters():
                 param.requires_grad = False
@@ -91,8 +96,11 @@ class VGG16(nn.Module):
         return x
     
 model = VGG16()
-
 data = torch.rand(1, 3, 224, 224)
+
+if torch.cuda.is_available() is True:
+    model.cuda()
+    data = data.cuda()
 
 print(f"input size: {data.size()}")
 
