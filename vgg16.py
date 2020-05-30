@@ -72,12 +72,13 @@ class VGG16(nn.Module):
         
     def forward(self, x):
         start_time = time.time_ns()
+        print("name, latency(ms), size (MB)")
 
         for i in range(len(self.features)):
             a = time.time_ns()
             x = self.features[i](x)
             b = (time.time_ns() - a) / (10 ** 6)
-            print(f"{self.func_names[i]} delay: {b:.4f}ms, size: {x.size()}")
+            print(f"{self.func_names[i]}, {b:.4f}, {x.reshape(-1,).size()[0] * 8 / 1024 / 1024 }")
 
         x = x.view(-1, 512*7*7)
 
@@ -85,7 +86,7 @@ class VGG16(nn.Module):
             a = time.time_ns()
             x = self.fc[i](x)
             b = (time.time_ns() - a) / (10 ** 6)
-            print(f"fc{i} delay: {b:.4f}ms, size: {x.size()}")
+            print(f"fc{i}, {b:.4f}, {x.reshape(-1,).size()[0] * 8 / 1024 / 1024}")
 
         x = F.log_softmax(x, dim=1)
 
