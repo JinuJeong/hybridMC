@@ -7,6 +7,9 @@ from torchvision import datasets, transforms
 from torch.autograd import Variable
 import time
 
+def time_ns():
+    return time.time() * (10**9)
+
 class VGG16(nn.Module):
     def __init__(self, requires_grad=False):
         super(VGG16, self).__init__()
@@ -71,42 +74,47 @@ class VGG16(nn.Module):
                 param.requires_grad = False
         
     def forward(self, x):
-        start_time = time.time_ns()
+        start_time = time_ns()
         print("name, latency(ms), size (MB)")
 
         for i in range(len(self.features)):
-            a = time.time_ns()
+            a = time_ns()
             x = self.features[i](x)
-            b = (time.time_ns() - a) / (10 ** 6)
+            b = (time_ns() - a) / (10 ** 6)
             print(f"{self.func_names[i]}, {b:.4f}, {x.reshape(-1,).size()[0] * 8 / 1024 / 1024 }")
 
         x = x.view(-1, 512*7*7)
 
         for i in range(len(self.fc)):
-            a = time.time_ns()
+            a = time_ns()
             x = self.fc[i](x)
-            b = (time.time_ns() - a) / (10 ** 6)
+            b = (time_ns() - a) / (10 ** 6)
             print(f"fc{i}, {b:.4f}, {x.reshape(-1,).size()[0] * 8 / 1024 / 1024}")
 
         x = F.log_softmax(x, dim=1)
 
-        end_time = time.time_ns()
+        end_time = time_ns()
         delay = (end_time - start_time) / (10 ** 6)
         print(f"total delay: {delay:.4f}ms")
 
         return x
     
-model = VGG16()
-data = torch.rand(1, 3, 224, 224)
+if __name__ == "__main__":
+    model = VGG16()
+    data = torch.rand(1, 3, 224, 224)
 
-if torch.cuda.is_available() is True:
-    model.cuda()
-    data = data.cuda()
+    if torch.cuda.is_available() is True:
+        print("Use CUDA")
+        model.cuda()
+        data = data.cuda()
 
-print(f"input size: {data.size()}")
+    print(f"input size: {data.size()}")
 
-model.eval()
+    model.eval()
+    model.eval
 
-output = model(data)
+    output = model(data)
+    output = model(data)
+    output = model(data)
 
-print(output.size())
+    print(output.size())
