@@ -1,8 +1,8 @@
 import torch
 import sys
 
-if len(sys.argv) <= 1:
-    print("Usage: python main.py <NN model> <enable cuda(default: 1)")
+if len(sys.argv) < 3:
+    print("Usage: python main.py <NN model> <enable cuda(0|1)")
     sys.exit()
 
 model_name = sys.argv[1]
@@ -37,6 +37,7 @@ model.eval()
 
 output = model(data)
 output = model(data)
+print("name, latency(ms), size(MB)")
 output = model(data)
 
 print(output.size())
